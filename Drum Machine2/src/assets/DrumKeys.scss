@@ -5,21 +5,22 @@
   border-radius: 5px;
   .row {
     // background-color: aqua;
-    gap: 2%;
+    gap: 2.5%;
     margin-bottom: 10px;
     position: relative;
+    justify-content: center;
     top: 22%;
   }
   .col {
-    background-color: rgb(61, 61, 61);
-    margin-left: 10px;
-    margin-right: 10px;
+    flex: 0 0 28%; // <-- each pad takes ~28% of row width
     height: 18vh;
     border-radius: 20px;
-    position: relative;
+    display: flex;
     align-items: center;
     justify-content: center;
+    background-color: rgb(61, 61, 61);
     color: antiquewhite;
+    transition: all 480ms;
     &:hover {
       box-shadow: 0px 0px 15px 4px rgb(61, 61, 61);
       transform: scale(0.9);
@@ -93,7 +94,7 @@
     bottom: 72%;
   }
 
-  /* level settings 👇 */
+  /* level settings */
   .slider {
     // slider variables
     --slider-width: 100%;

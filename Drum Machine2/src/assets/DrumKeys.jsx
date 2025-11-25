@@ -2,7 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./DrumKeys.scss";
 export const DrumMachine = function () {
   return (
-    <div className="container text-center mt-5 container__one">
+    <div className="container-fluid text-center mt-5 container__one">
       <label className="slider">
         <input type="range" className="level" />
         <svg
