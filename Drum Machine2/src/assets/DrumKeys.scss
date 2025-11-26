@@ -12,7 +12,7 @@
     top: 22%;
   }
   .col {
-    flex: 0 0 28%; // <-- each pad takes ~28% of row width
+    flex: 0 0 28%;
     height: 18vh;
     border-radius: 20px;
     display: flex;
@@ -26,6 +26,7 @@
       transform: scale(0.9);
       transition: all 480ms;
       background-color: gray;
+      cursor: pointer;
     }
   }
   .screen {

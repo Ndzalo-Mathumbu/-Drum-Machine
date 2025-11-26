@@ -1,6 +1,56 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./DrumKeys.scss";
+import React from "react";
+
 export const DrumMachine = function () {
+  React.useEffect(() => {
+    const Heater1 = document.getElementById("Heater-1");
+    const Heater2 = document.getElementById("Heater-2");
+    const Heater3 = document.getElementById("Heater-3");
+    const Heater4 = document.getElementById("Heater-4");
+    const Heater6 = document.getElementById("Heater-6");
+    const Heater7 = document.getElementById("Heater-7");
+    const Heater8 = document.getElementById("Heater-8");
+    const Heater9 = document.getElementById("Heater-9");
+    const Heater10 = document.getElementById("Heater-10");
+
+    const Q = document.querySelector("#Q");
+    const W = document.querySelector("#W");
+    const E = document.querySelector("#E");
+    const A = document.querySelector("#A");
+    const S = document.querySelector("#S");
+    const D = document.querySelector("#D");
+    const Z = document.querySelector("#Z");
+    const X = document.querySelector("#X");
+    const C = document.querySelector("#C");
+
+    const padSound = [
+      { pad: Q, sound: Heater1 },
+      { pad: W, sound: Heater2 },
+      { pad: E, sound: Heater3 },
+      { pad: A, sound: Heater4 },
+      { pad: S, sound: Heater6 },
+      { pad: D, sound: Heater7 },
+      { pad: Z, sound: Heater8 },
+      { pad: X, sound: Heater9 },
+      { pad: C, sound: Heater10 },
+    ];
+
+    const playSound = function () {
+      padSound.forEach(({ pad, sound }) => {
+        pad.addEventListener("click", () => {
+          pad.style.backgroundColor = "skyblue";
+          setTimeout(() => {
+            pad.style.backgroundColor = "";
+          }, 150);
+          sound.currentTime = 0;
+          sound.play();
+        });
+      });
+    };
+    playSound();
+  }, []);
+
   return (
     <div className="container-fluid text-center mt-5 container__one">
       <label className="slider">
@@ -36,27 +86,81 @@ export const DrumMachine = function () {
       <div className="screen d-flex">Heater 1</div>
 
       <div className="row">
-        <div className="col d-flex">Q</div>
-        <div className="col d-flex">W</div>
-        <div className="col d-flex">E</div>
+        <div className="col d-flex" id="Q">
+          <audio
+            id="Heater-1"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3"
+          ></audio>
+          Q
+        </div>
+        <div className="col d-flex" id="W">
+          <audio
+            id="Heater-2"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Heater-2.mp3"
+          ></audio>
+          W
+        </div>
+        <div className="col d-flex" id="E">
+          <audio
+            id="Heater-3"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Heater-3.mp3"
+          ></audio>
+          E
+        </div>
       </div>
 
       <div className="row">
-        <div className="col d-flex">A</div>
-        <div className="col d-flex">S</div>
-        <div className="col d-flex">D</div>
+        <div className="col d-flex" id="A">
+          <audio
+            id="Heater-4"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Heater-4_1.mp3"
+          ></audio>
+          A
+        </div>
+        <div className="col d-flex" id="S">
+          <audio
+            id="Heater-6"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Heater-6.mp3"
+          ></audio>
+          S
+        </div>
+        <div className="col d-flex" id="D">
+          <audio
+            id="Heater-7"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Dsc_Oh.mp3"
+          ></audio>
+          D
+        </div>
       </div>
 
       <div className="row">
-        <div className="col d-flex">Z</div>
-        <div className="col d-flex">X</div>
-        <div className="col d-flex">C</div>
+        <div className="col d-flex" id="Z">
+          <audio
+            id="Heater-8"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Kick_n_Hat.mp3"
+          ></audio>
+          Z
+        </div>
+        <div className="col d-flex" id="X">
+          <audio
+            id="Heater-9"
+            src="https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3"
+          ></audio>
+          X
+        </div>
+        <div className="col d-flex" id="C">
+          <audio
+            id="Heater-10"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Cev_H2.mp3"
+          ></audio>
+          C
+        </div>
       </div>
 
       <div className="content d-flex">
         <label className="checkBox d-flex">
           <input id="ch1" type="checkbox" />
-          Bank
+          Bnk
           <div className="transition"></div>
         </label>
       </div>
