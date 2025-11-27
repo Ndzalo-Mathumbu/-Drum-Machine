@@ -4,51 +4,112 @@ import React from "react";
 
 export const DrumMachine = function () {
   React.useEffect(() => {
-    const Heater1 = document.getElementById("Heater-1");
-    const Heater2 = document.getElementById("Heater-2");
-    const Heater3 = document.getElementById("Heater-3");
-    const Heater4 = document.getElementById("Heater-4");
-    const Heater6 = document.getElementById("Heater-6");
-    const Heater7 = document.getElementById("Heater-7");
-    const Heater8 = document.getElementById("Heater-8");
-    const Heater9 = document.getElementById("Heater-9");
-    const Heater10 = document.getElementById("Heater-10");
+    const screen = document.querySelector(".screen");
 
-    const Q = document.querySelector("#Q");
-    const W = document.querySelector("#W");
-    const E = document.querySelector("#E");
-    const A = document.querySelector("#A");
-    const S = document.querySelector("#S");
-    const D = document.querySelector("#D");
-    const Z = document.querySelector("#Z");
-    const X = document.querySelector("#X");
-    const C = document.querySelector("#C");
-
+    // all pads and sounds
     const padSound = [
-      { pad: Q, sound: Heater1 },
-      { pad: W, sound: Heater2 },
-      { pad: E, sound: Heater3 },
-      { pad: A, sound: Heater4 },
-      { pad: S, sound: Heater6 },
-      { pad: D, sound: Heater7 },
-      { pad: Z, sound: Heater8 },
-      { pad: X, sound: Heater9 },
-      { pad: C, sound: Heater10 },
+      {
+        pad: document.querySelector("#Q"),
+        sound: document.getElementById("Heater-1"),
+      },
+      {
+        pad: document.querySelector("#W"),
+        sound: document.getElementById("Heater-2"),
+      },
+      {
+        pad: document.querySelector("#E"),
+        sound: document.getElementById("Heater-3"),
+      },
+      {
+        pad: document.querySelector("#A"),
+        sound: document.getElementById("Heater-4"),
+      },
+      {
+        pad: document.querySelector("#S"),
+        sound: document.getElementById("Heater-6"),
+      },
+      {
+        pad: document.querySelector("#D"),
+        sound: document.getElementById("Heater-7"),
+      },
+      {
+        pad: document.querySelector("#Z"),
+        sound: document.getElementById("Heater-8"),
+      },
+      {
+        pad: document.querySelector("#X"),
+        sound: document.getElementById("Heater-9"),
+      },
+      {
+        pad: document.querySelector("#C"),
+        sound: document.getElementById("Heater-10"),
+      },
     ];
 
-    const playSound = function () {
+    let isOn = false;
+
+    // Click for each pad
+    const addPadListeners = () => {
       padSound.forEach(({ pad, sound }) => {
-        pad.addEventListener("click", () => {
+        const handler = () => {
           pad.style.backgroundColor = "skyblue";
-          setTimeout(() => {
-            pad.style.backgroundColor = "";
-          }, 150);
+          setTimeout(() => (pad.style.backgroundColor = ""), 150);
+
           sound.currentTime = 0;
           sound.play();
-        });
+        };
+        pad.addEventListener("click", handler);
+        pad._handler = handler;
       });
     };
-    playSound();
+
+    const removePadListeners = () => {
+      padSound.forEach(({ pad }) => {
+        if (pad._handler) {
+          pad.removeEventListener("click", pad._handler);
+          delete pad._handler;
+        }
+      });
+    };
+
+    // Key press handler
+    const handleKeyDown = (e) => {
+      if (!isOn) return;
+      const key = e.key.toUpperCase();
+      const padObj = padSound.find((p) => p.pad.innerText === key);
+
+      if (padObj) {
+        padObj.pad.style.backgroundColor = "skyblue";
+        setTimeout(() => (padObj.pad.style.backgroundColor = ""), 150);
+
+        padObj.sound.currentTime = 0;
+        padObj.sound.play();
+      }
+    };
+
+    // Toggle power
+    const togglePower = () => {
+      isOn = !isOn;
+
+      if (isOn) {
+        screen.style.backgroundColor = "rgb(207, 207, 207)";
+        addPadListeners();
+        window.addEventListener("keydown", handleKeyDown);
+      } else {
+        screen.style.backgroundColor = "";
+        removePadListeners();
+        window.removeEventListener("keydown", handleKeyDown);
+      }
+    };
+
+    screen.addEventListener("click", togglePower);
+
+    // Cleanup on unmount
+    return () => {
+      removePadListeners();
+      window.removeEventListener("keydown", handleKeyDown);
+      screen.removeEventListener("click", togglePower);
+    };
   }, []);
 
   return (
