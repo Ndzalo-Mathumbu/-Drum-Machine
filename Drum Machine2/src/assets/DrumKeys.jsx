@@ -5,7 +5,7 @@ import React from "react";
 export const DrumMachine = function () {
   React.useEffect(() => {
     const screen = document.querySelector(".screen");
-
+    let displayName;
     // all pads and sounds
     const padSound = [
       {
@@ -53,10 +53,58 @@ export const DrumMachine = function () {
       padSound.forEach(({ pad, sound }) => {
         const handler = () => {
           pad.style.backgroundColor = "skyblue";
+
           setTimeout(() => (pad.style.backgroundColor = ""), 150);
 
           sound.currentTime = 0;
           sound.play();
+
+          const soundNames = [
+            "Heater 1",
+            "Heater 2",
+            "Heater 3",
+            "Heater 4",
+            "Clap",
+            "Open Hi-Hat",
+            "Kick n’ Hat",
+            "Kick",
+            "Closed Hi-Hat",
+          ];
+
+          const capletter = pad.innerText;
+          switch (capletter) {
+            case "Q":
+              // displayName = soundNames[0];
+              screen.innerHTML = soundNames[0];
+              break;
+            case "W":
+              screen.innerHTML = soundNames[1];
+              break;
+            case "E":
+              screen.innerHTML = soundNames[2];
+              break;
+            case "A":
+              screen.innerHTML = soundNames[3];
+              break;
+            case "S":
+              screen.innerHTML = soundNames[4];
+              break;
+            case "D":
+              screen.innerHTML = soundNames[5];
+              break;
+            case "Z":
+              screen.innerHTML = soundNames[6];
+              break;
+            case "X":
+              screen.innerHTML = soundNames[7];
+              break;
+            case "C":
+              screen.innerHTML = soundNames[8];
+              break;
+            default:
+              "~ Ndzalo NK Mathumbu";
+          }
+          // console.log(displayName);
         };
         pad.addEventListener("click", handler);
         pad._handler = handler;
@@ -77,7 +125,51 @@ export const DrumMachine = function () {
       if (!isOn) return;
       const key = e.key.toUpperCase();
       const padObj = padSound.find((p) => p.pad.innerText === key);
+      const soundNames = [
+        "Heater 1",
+        "Heater 2",
+        "Heater 3",
+        "Heater 4",
+        "Clap",
+        "Open Hi-Hat",
+        "Kick n’ Hat",
+        "Kick",
+        "Closed Hi-Hat",
+      ];
 
+      const capletter = key;
+      switch (capletter) {
+        case "Q":
+          // displayName = soundNames[0];
+          screen.innerHTML = soundNames[0];
+          break;
+        case "W":
+          screen.innerHTML = soundNames[1];
+          break;
+        case "E":
+          screen.innerHTML = soundNames[2];
+          break;
+        case "A":
+          screen.innerHTML = soundNames[3];
+          break;
+        case "S":
+          screen.innerHTML = soundNames[4];
+          break;
+        case "D":
+          screen.innerHTML = soundNames[5];
+          break;
+        case "Z":
+          screen.innerHTML = soundNames[6];
+          break;
+        case "X":
+          screen.innerHTML = soundNames[7];
+          break;
+        case "C":
+          screen.innerHTML = soundNames[8];
+          break;
+        default:
+          "~ Ndzalo NK Mathumbu";
+      }
       if (padObj) {
         padObj.pad.style.backgroundColor = "skyblue";
         setTimeout(() => (padObj.pad.style.backgroundColor = ""), 150);
@@ -95,13 +187,16 @@ export const DrumMachine = function () {
         screen.style.backgroundColor = "rgb(207, 207, 207)";
         addPadListeners();
         window.addEventListener("keydown", handleKeyDown);
+        screen.textContent = `Power ON`;
       } else {
         screen.style.backgroundColor = "";
         removePadListeners();
         window.removeEventListener("keydown", handleKeyDown);
+        screen.textContent = `Power OFF`;
       }
     };
 
+    // renderSoundName();
     screen.addEventListener("click", togglePower);
 
     // Cleanup on unmount
@@ -144,7 +239,7 @@ export const DrumMachine = function () {
         </svg>
       </label>
 
-      <div className="screen d-flex">Heater 1</div>
+      <div className="screen d-flex">Power OFF</div>
 
       <div className="row">
         <div className="col d-flex" id="Q">
