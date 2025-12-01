@@ -1,59 +1,53 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./DrumKeys.scss";
-import React from "react";
+import React, { useState, useEffect } from "react";
+
+// just store IDs, not actual elements
+const padSound = [
+  { padId: "Q", soundId: "Heater-1" },
+  { padId: "W", soundId: "Heater-2" },
+  { padId: "E", soundId: "Heater-3" },
+  { padId: "A", soundId: "Heater-4" },
+  { padId: "S", soundId: "Heater-6" },
+  { padId: "D", soundId: "Heater-7" },
+  { padId: "Z", soundId: "Heater-8" },
+  { padId: "X", soundId: "Heater-9" },
+  { padId: "C", soundId: "Heater-10" },
+];
+
+const padSound2 = [
+  { padId: "Q", soundId: "Chord-1" },
+  { padId: "W", soundId: "Chord-2" },
+  { padId: "E", soundId: "Chord-3" },
+  { padId: "A", soundId: "Shaker" },
+  { padId: "S", soundId: "Open-HH" },
+  { padId: "D", soundId: "Closed-HH" },
+  { padId: "Z", soundId: "Punchy-Kick" },
+  { padId: "X", soundId: "Side-Stick" },
+  { padId: "C", soundId: "Snare" },
+];
 
 export const DrumMachine = function () {
-  React.useEffect(() => {
-    const screen = document.querySelector(".screen");
-    let displayName;
-    // all pads and sounds
-    const padSound = [
-      {
-        pad: document.querySelector("#Q"),
-        sound: document.getElementById("Heater-1"),
-      },
-      {
-        pad: document.querySelector("#W"),
-        sound: document.getElementById("Heater-2"),
-      },
-      {
-        pad: document.querySelector("#E"),
-        sound: document.getElementById("Heater-3"),
-      },
-      {
-        pad: document.querySelector("#A"),
-        sound: document.getElementById("Heater-4"),
-      },
-      {
-        pad: document.querySelector("#S"),
-        sound: document.getElementById("Heater-6"),
-      },
-      {
-        pad: document.querySelector("#D"),
-        sound: document.getElementById("Heater-7"),
-      },
-      {
-        pad: document.querySelector("#Z"),
-        sound: document.getElementById("Heater-8"),
-      },
-      {
-        pad: document.querySelector("#X"),
-        sound: document.getElementById("Heater-9"),
-      },
-      {
-        pad: document.querySelector("#C"),
-        sound: document.getElementById("Heater-10"),
-      },
-    ];
+  const [currentArray, setCurrentArray] = useState(padSound);
 
+  useEffect(() => {
+    const screen = document.querySelector(".screen");
+    let bankBtn = document.querySelector("#ch1");
     let isOn = false;
 
-    // Click for each pad
+    // map IDs to elements after render
+    const mappedArray = currentArray.map(({ padId, soundId }) => ({
+      pad: document.getElementById(padId),
+      sound: document.getElementById(soundId),
+    }));
+
+    // click handler for pads
     const addPadListeners = () => {
-      padSound.forEach(({ pad, sound }) => {
+      mappedArray.forEach(({ pad, sound }) => {
+        if (!pad || !sound) return;
+
         const handler = () => {
           pad.style.backgroundColor = "skyblue";
-
           setTimeout(() => (pad.style.backgroundColor = ""), 150);
 
           sound.currentTime = 0;
@@ -74,7 +68,6 @@ export const DrumMachine = function () {
           const capletter = pad.innerText;
           switch (capletter) {
             case "Q":
-              // displayName = soundNames[0];
               screen.innerHTML = soundNames[0];
               break;
             case "W":
@@ -104,27 +97,27 @@ export const DrumMachine = function () {
             default:
               "~ Ndzalo NK Mathumbu";
           }
-          // console.log(displayName);
         };
+
         pad.addEventListener("click", handler);
         pad._handler = handler;
       });
     };
 
+    // remove pad listeners
     const removePadListeners = () => {
-      padSound.forEach(({ pad }) => {
-        if (pad._handler) {
-          pad.removeEventListener("click", pad._handler);
-          delete pad._handler;
-        }
+      mappedArray.forEach(({ pad }) => {
+        if (!pad || !pad._handler) return;
+        pad.removeEventListener("click", pad._handler);
+        delete pad._handler;
       });
     };
 
-    // Key press handler
+    // key press handler
     const handleKeyDown = (e) => {
       if (!isOn) return;
       const key = e.key.toUpperCase();
-      const padObj = padSound.find((p) => p.pad.innerText === key);
+      const padObj = mappedArray.find((p) => p.pad.innerText === key);
       const soundNames = [
         "Heater 1",
         "Heater 2",
@@ -137,10 +130,8 @@ export const DrumMachine = function () {
         "Closed Hi-Hat",
       ];
 
-      const capletter = key;
-      switch (capletter) {
+      switch (key) {
         case "Q":
-          // displayName = soundNames[0];
           screen.innerHTML = soundNames[0];
           break;
         case "W":
@@ -170,6 +161,7 @@ export const DrumMachine = function () {
         default:
           "~ Ndzalo NK Mathumbu";
       }
+
       if (padObj) {
         padObj.pad.style.backgroundColor = "skyblue";
         setTimeout(() => (padObj.pad.style.backgroundColor = ""), 150);
@@ -179,33 +171,61 @@ export const DrumMachine = function () {
       }
     };
 
-    // Toggle power
+    // toggle power
     const togglePower = () => {
       isOn = !isOn;
-
       if (isOn) {
         screen.style.backgroundColor = "rgb(207, 207, 207)";
         addPadListeners();
         window.addEventListener("keydown", handleKeyDown);
-        screen.textContent = `Power ON`;
+        screen.textContent = "Power ON";
       } else {
         screen.style.backgroundColor = "";
         removePadListeners();
         window.removeEventListener("keydown", handleKeyDown);
-        screen.textContent = `Power OFF`;
+        screen.textContent = "Power OFF";
       }
     };
 
-    // renderSoundName();
+    // bank toggle
+    const soundSwitch = ["Sound 1", "Sound 2"];
+
+    // Remove all previous listeners before adding new ones
+    const makeSwitch = () => {
+      // Remove old listener first
+      const newBankBtn = bankBtn.cloneNode(true);
+      bankBtn.parentNode.replaceChild(newBankBtn, bankBtn);
+
+      // Update reference
+      bankBtn = newBankBtn;
+
+      bankBtn.addEventListener("change", () => {
+        if (bankBtn.checked) {
+          screen.textContent = soundSwitch[1]; // Bank 2 active
+          setCurrentArray(padSound2); // Switch pads
+        } else {
+          screen.textContent = soundSwitch[0]; // Bank 1 active
+          setCurrentArray(padSound); // Switch pads
+        }
+
+        // Reset pad listeners depending on power
+        if (isOn) {
+          removePadListeners();
+          addPadListeners();
+        }
+      });
+    };
+
+    // initialize
+    makeSwitch();
     screen.addEventListener("click", togglePower);
 
-    // Cleanup on unmount
     return () => {
       removePadListeners();
       window.removeEventListener("keydown", handleKeyDown);
       screen.removeEventListener("click", togglePower);
     };
-  }, []);
+  }, [currentArray]);
 
   return (
     <div className="container-fluid text-center mt-5 container__one">
@@ -241,11 +261,16 @@ export const DrumMachine = function () {
 
       <div className="screen d-flex">Power OFF</div>
 
+      {/* JSX for pads */}
       <div className="row">
         <div className="col d-flex" id="Q">
           <audio
             id="Heater-1"
             src="https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3"
+          ></audio>
+          <audio
+            id="Chord-1"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Chord_1.mp3"
           ></audio>
           Q
         </div>
@@ -254,12 +279,20 @@ export const DrumMachine = function () {
             id="Heater-2"
             src="https://s3.amazonaws.com/freecodecamp/drums/Heater-2.mp3"
           ></audio>
+          <audio
+            id="Chord-2"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Chord_2.mp3"
+          ></audio>
           W
         </div>
         <div className="col d-flex" id="E">
           <audio
             id="Heater-3"
             src="https://s3.amazonaws.com/freecodecamp/drums/Heater-3.mp3"
+          ></audio>
+          <audio
+            id="Chord-3"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Chord_3.mp3"
           ></audio>
           E
         </div>
@@ -271,6 +304,10 @@ export const DrumMachine = function () {
             id="Heater-4"
             src="https://s3.amazonaws.com/freecodecamp/drums/Heater-4_1.mp3"
           ></audio>
+          <audio
+            id="Shaker"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Give_us_a_light.mp3"
+          ></audio>
           A
         </div>
         <div className="col d-flex" id="S">
@@ -278,12 +315,20 @@ export const DrumMachine = function () {
             id="Heater-6"
             src="https://s3.amazonaws.com/freecodecamp/drums/Heater-6.mp3"
           ></audio>
+          <audio
+            id="Open-HH"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Dry_Ohh.mp3"
+          ></audio>
           S
         </div>
         <div className="col d-flex" id="D">
           <audio
             id="Heater-7"
             src="https://s3.amazonaws.com/freecodecamp/drums/Dsc_Oh.mp3"
+          ></audio>
+          <audio
+            id="Closed-HH"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Bld_H1.mp3"
           ></audio>
           D
         </div>
@@ -295,12 +340,20 @@ export const DrumMachine = function () {
             id="Heater-8"
             src="https://s3.amazonaws.com/freecodecamp/drums/Kick_n_Hat.mp3"
           ></audio>
+          <audio
+            id="Punchy-Kick"
+            src="https://s3.amazonaws.com/freecodecamp/drums/punchy_kick_1.mp3"
+          ></audio>
           Z
         </div>
         <div className="col d-flex" id="X">
           <audio
             id="Heater-9"
             src="https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3"
+          ></audio>
+          <audio
+            id="Side-Stick"
+            src="https://s3.amazonaws.com/freecodecamp/drums/side_stick_1.mp3"
           ></audio>
           X
         </div>
@@ -309,13 +362,27 @@ export const DrumMachine = function () {
             id="Heater-10"
             src="https://s3.amazonaws.com/freecodecamp/drums/Cev_H2.mp3"
           ></audio>
+          <audio
+            id="Snare"
+            src="https://s3.amazonaws.com/freecodecamp/drums/Brk_Snr.mp3"
+          ></audio>
           C
         </div>
       </div>
 
       <div className="content d-flex">
         <label className="checkBox d-flex">
-          <input id="ch1" type="checkbox" />
+          <input
+            id="ch1"
+            type="checkbox"
+            onChange={() => {
+              setCurrentArray((currentArr) => {
+                if (currentArr === padSound) {
+                  return padSound2;
+                } else return padSound;
+              });
+            }}
+          />
           Bnk
           <div className="transition"></div>
         </label>
