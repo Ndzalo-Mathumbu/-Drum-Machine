@@ -98,117 +98,65 @@ const padsBank2 = [
   },
 ];
 
-export const DrumMachine = function () {
+export const DrumMachine = () => {
   const [currentBank, setCurrentBank] = useState(padsBank1);
   const [isOn, setIsOn] = useState(false);
   const [displayText, setDisplayText] = useState("Power OFF");
   const [volume, setVolume] = useState(0.5);
 
   useEffect(() => {
-    const display = document.getElementById("display");
-    const bankInput = document.getElementById("ch1");
-    const allowedKeys = ["Q", "W", "E", "A", "S", "D", "Z", "X", "C"];
-
-    // map pads
-    const mapped = currentBank.map((p) => ({
-      key: p.key,
-      name: p.name,
-      url: p.url,
-      audioEl: document.getElementById(p.key),
-      padEl: document.getElementById(`pad-${p.key}`),
-    }));
-
-    // only set src once per bank change
-    mapped.forEach((m) => {
-      if (m.audioEl && m.audioEl.src !== m.url) m.audioEl.src = m.url;
-    });
-
-    // play function
-    const playPad = (audioEl) => {
-      if (!audioEl) return;
-      audioEl.currentTime = 0;
-      audioEl.volume = volume;
-      audioEl.play();
-    };
-
-    // click handlers
-    mapped.forEach(({ padEl, audioEl, name }) => {
-      if (!padEl || !audioEl) return;
-      if (padEl._handler) return;
-
-      const handler = () => {
-        padEl.style.backgroundColor = "skyblue";
-        setTimeout(() => (padEl.style.backgroundColor = ""), 150);
-        playPad(audioEl);
-        display.innerText = name;
-        setDisplayText(name);
-      };
-
-      padEl.addEventListener("click", handler);
-      padEl._handler = handler;
-    });
-
-    // keyboard
     const handleKeyDown = (e) => {
       if (!isOn) return;
       const k = e.key.toUpperCase();
-      if (!allowedKeys.includes(k)) return;
-      const found = mapped.find((m) => m.key === k);
-      if (!found) return;
-      const { audioEl, padEl, name } = found;
-      padEl.style.backgroundColor = "skyblue";
-      setTimeout(() => (padEl.style.backgroundColor = ""), 150);
-      playPad(audioEl);
-      display.innerText = name;
-      setDisplayText(name);
+      const pad = currentBank.find((p) => p.key === k);
+      if (pad) handlePadClick(pad.key, pad.name);
     };
-
-    // bank toggle
-    const handleBankClick = (ev) => {
-      if (!isOn) {
-        ev.target.checked = !ev.target.checked;
-        const prev = display.innerText;
-        display.innerText = "Drum is OFF";
-        setTimeout(() => (display.innerText = prev), 800);
-
-        return;
-      }
-      setCurrentBank((prev) => (prev === padsBank1 ? padsBank2 : padsBank1));
-      display.innerText = ev.target.checked ? "Smooth Piano Kit" : "Heater Kit";
-      setTimeout(() => (display.innerText = ""), 700);
-    };
-
-    if (bankInput) bankInput.addEventListener("click", handleBankClick);
-    if (isOn) {
-      window.addEventListener("keydown", handleKeyDown);
-      display.style.backgroundColor = "rgb(207, 207, 207)";
-    } else {
-      display.style.backgroundColor = "";
-    }
-
-    return () => {
-      mapped.forEach(({ padEl }) => {
-        if (padEl && padEl._handler) {
-          padEl.removeEventListener("click", padEl._handler);
-          delete padEl._handler;
-        }
-      });
-      if (bankInput) bankInput.removeEventListener("click", handleBankClick);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentBank, isOn, volume]);
 
-  const handleScreenClick = () => {
+  const handlePadClick = (key, name) => {
+    if (!isOn) return;
+    const audioEl = document.getElementById(key);
+    const padEl = document.getElementById(`pad-${key}`);
+    if (!audioEl || !padEl) return;
+
+    // pad flash effect
+    padEl.style.backgroundColor = "skyblue";
+    setTimeout(() => (padEl.style.backgroundColor = ""), 150);
+
+    audioEl.currentTime = 0;
+    audioEl.volume = volume;
+    audioEl.play();
+    setDisplayText(name);
+  };
+
+  const handleBankToggle = (e) => {
+    if (!isOn) {
+      e.target.checked = !e.target.checked;
+      setDisplayText("Drum is OFF");
+      setTimeout(() => setDisplayText("Power OFF"), 800);
+      return;
+    }
+    setCurrentBank((prev) => (prev === padsBank1 ? padsBank2 : padsBank1));
+    setDisplayText(e.target.checked ? "Smooth Piano Kit" : "Heater Kit");
+    setTimeout(() => setDisplayText(""), 700);
+  };
+
+  const handleVolumeChange = (e) => {
+    const val = parseFloat(e.target.value);
+    setVolume(val);
+    setDisplayText(`Volume: ${Math.round(val * 100)}`);
+    setTimeout(() => setDisplayText(""), 700);
+  };
+
+  const handlePowerClick = () => {
     setIsOn((prev) => {
       const next = !prev;
       setDisplayText(next ? "Power ON" : "Power OFF");
       return next;
     });
   };
-
-  const handleBankChangeStub = () => {};
-
-  const handleVolumeChange = (e) => setVolume(parseFloat(e.target.value));
 
   return (
     <div
@@ -228,15 +176,7 @@ export const DrumMachine = function () {
         <svg
           className="volume"
           xmlns="http://www.w3.org/2000/svg"
-          xmlnsXlink="http://www.w3.org/1999/xlink"
-          version="1.1"
-          width="512"
-          height="512"
-          x="0"
-          y="0"
           viewBox="0 0 24 24"
-          style={{ enableBackground: "new 0 0 512 512" }}
-          xmlSpace="preserve"
         >
           <g>
             <path
@@ -251,47 +191,34 @@ export const DrumMachine = function () {
         </svg>
       </label>
 
-      <div id="display" className="screen d-flex" onClick={handleScreenClick}>
+      <div
+        id="display"
+        className="screen d-flex"
+        onClick={handlePowerClick}
+        style={{ backgroundColor: isOn ? "rgb(207, 207, 207)" : "" }}
+      >
         {displayText}
       </div>
 
-      <div className="row">
-        {["Q", "W", "E"].map((k) => (
-          <div key={k} className="col d-flex drum-pad" id={`pad-${k}`}>
-            <audio
-              id={k}
-              src={currentBank.find((p) => p.key === k).url}
-            ></audio>
-            {k}
-          </div>
-        ))}
-      </div>
-      <div className="row">
-        {["A", "S", "D"].map((k) => (
-          <div key={k} className="col d-flex drum-pad" id={`pad-${k}`}>
-            <audio
-              id={k}
-              src={currentBank.find((p) => p.key === k).url}
-            ></audio>
-            {k}
-          </div>
-        ))}
-      </div>
-      <div className="row">
-        {["Z", "X", "C"].map((k) => (
-          <div key={k} className="col d-flex drum-pad" id={`pad-${k}`}>
-            <audio
-              id={k}
-              src={currentBank.find((p) => p.key === k).url}
-            ></audio>
-            {k}
-          </div>
-        ))}
-      </div>
+      {[0, 1, 2].map((row) => (
+        <div className="row" key={row}>
+          {currentBank.slice(row * 3, row * 3 + 3).map((pad) => (
+            <div
+              key={pad.key}
+              className="col d-flex drum-pad"
+              id={`pad-${pad.key}`}
+              onClick={() => handlePadClick(pad.key, pad.name)}
+            >
+              {pad.key}
+              <audio id={pad.key} className="clip" src={pad.url}></audio>
+            </div>
+          ))}
+        </div>
+      ))}
 
       <div className="content d-flex">
         <label className="checkBox d-flex">
-          <input id="ch1" type="checkbox" onChange={handleBankChangeStub} />
+          <input id="ch1" type="checkbox" onClick={handleBankToggle} />
           Bnk
           <div className="transition error"></div>
         </label>
